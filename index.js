@@ -74,20 +74,22 @@ async function run() {
       res.send(result);
     });
 
-    // // get individual package by id
-    // app.get("/packages/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await pakagesCollection.findOne(query);
-    //   res.send(result);
-    // });
+    // Filter products by brand
+    app.post("/filter-products", async (req, res) => {
+      const { brands } = req.body;
 
-    // // post package from front end to db
-    // app.post("/packages", async (req, res) => {
-    //   const newItem = req.body;
-    //   const result = await pakagesCollection.insertOne(newItem);
-    //   res.send(result);
-    // });
+      try {
+        let query = {};
+        if (brands && brands.length > 0 && !brands.includes("All")) {
+          query.brand = { $in: brands };
+        }
+        const result = await productsCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error filtering products:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
