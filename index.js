@@ -66,6 +66,23 @@ async function run() {
       }
     });
 
+    // Check if user exists
+    app.post("/users/check", async (req, res) => {
+      const { email } = req.body;
+
+      try {
+        const user = await usersCollection.findOne({ email });
+        if (user) {
+          res.json({ exists: true });
+        } else {
+          res.json({ exists: false });
+        }
+      } catch (error) {
+        console.error("Error checking user existence:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    });
+
     //*************************************************************************
 
     // get all packages
@@ -75,21 +92,42 @@ async function run() {
     });
 
     // Filter products by brand
-    app.post("/filter-products", async (req, res) => {
-      const { brands } = req.body;
+    // app.post("/filter-products", async (req, res) => {
+    //   const { brands } = req.body;
 
-      try {
-        let query = {};
-        if (brands && brands.length > 0 && !brands.includes("All")) {
-          query.brand = { $in: brands };
-        }
-        const result = await productsCollection.find(query).toArray();
-        res.send(result);
-      } catch (error) {
-        console.error("Error filtering products:", error);
-        res.status(500).send({ message: "Internal Server Error" });
-      }
-    });
+    //   try {
+    //     let query = {};
+    //     if (brands && brands.length > 0 && !brands.includes("All")) {
+    //       query.brand = { $in: brands };
+    //     }
+    //     const result = await productsCollection.find(query).toArray();
+    //     res.send(result);
+    //   } catch (error) {
+    //     console.error("Error filtering products:", error);
+    //     res.status(500).send({ message: "Internal Server Error" });
+    //   }
+    // });
+
+    // app.get("/filter-products", async (req, res) => {
+    //   const { categories = [], brands = [] } = req.query;
+    //   const filter = {};
+
+    //   if (categories.length > 0 && !categories.includes("All")) {
+    //     filter.category = { $in: categories.split(",") };
+    //   }
+
+    //   if (brands.length > 0 && !brands.includes("All")) {
+    //     filter.brand = { $in: brands.split(",") };
+    //   }
+
+    //   try {
+    //     const result = await productsCollection.find(filter).toArray();
+    //     res.send(result);
+    //   } catch (error) {
+    //     console.error("Error fetching products:", error);
+    //     res.status(500).send({ message: "Internal Server Error" });
+    //   }
+    // });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
