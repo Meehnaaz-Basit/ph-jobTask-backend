@@ -173,23 +173,6 @@ async function run() {
       }
     });
 
-    // Filter products by brand
-    // app.post("/filter-products", async (req, res) => {
-    //   const { brands } = req.body;
-
-    //   try {
-    //     let query = {};
-    //     if (brands && brands.length > 0 && !brands.includes("All")) {
-    //       query.brand = { $in: brands };
-    //     }
-    //     const result = await productsCollection.find(query).toArray();
-    //     res.send(result);
-    //   } catch (error) {
-    //     console.error("Error filtering products:", error);
-    //     res.status(500).send({ message: "Internal Server Error" });
-    //   }
-    // });
-
     // app.get("/filter-products", async (req, res) => {
     //   const { categories = [], brands = [] } = req.query;
     //   const filter = {};
