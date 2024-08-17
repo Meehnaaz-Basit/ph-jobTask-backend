@@ -141,10 +141,20 @@ async function run() {
     // });
     app.get("/products", async (req, res) => {
       try {
-        const page = parseInt(req.query.p) || 0;
+        // Parse page number from query parameters, default to 0
+        const page = parseInt(req.query.p, 10) || 0;
         const productsPerPage = 10;
 
-        const totalProducts = await db.collection("products").countDocuments(); // Get total product count
+        if (page < 0) {
+          return res
+            .status(400)
+            .json({ error: "Page number cannot be negative" });
+        }
+
+        // Get total product count
+        const totalProducts = await db.collection("products").countDocuments();
+
+        // Fetch paginated products
         const products = await db
           .collection("products")
           .find()
@@ -152,12 +162,14 @@ async function run() {
           .limit(productsPerPage)
           .toArray();
 
+        // Send response with products and total pages
         res.status(200).json({
           products,
-          totalPages: Math.ceil(totalProducts / productsPerPage), // Send total pages
+          totalPages: Math.ceil(totalProducts / productsPerPage), // Calculate total pages
         });
       } catch (error) {
-        res.status(500).json({ error: "could not fetch products" });
+        console.error("Error fetching products:", error); // Log the error for debugging
+        res.status(500).json({ error: "Could not fetch products" });
       }
     });
 
