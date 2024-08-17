@@ -86,9 +86,79 @@ async function run() {
     //*************************************************************************
 
     // get all packages
+    // app.get("/products", async (req, res) => {
+    //   const result = await productsCollection.find().toArray();
+    //   res.send(result);
+    // });
+
+    // Get paginated products
+    // app.get("/products", async (req, res) => {
+    //   try {
+    //     const page = parseInt(req.query.page) || 1;
+    //     const limit = parseInt(req.query.limit) || 10;
+    //     const skip = (page - 1) * limit;
+
+    //     // Fetch the filtered and paginated products
+    //     const products = await productsCollection
+    //       .find()
+    //       .skip(skip)
+    //       .limit(limit)
+    //       .toArray();
+
+    //     // Get the total count for pagination
+    //     const totalProducts = await productsCollection.countDocuments();
+
+    //     res.send({
+    //       products,
+    //       totalProducts,
+    //       totalPages: Math.ceil(totalProducts / limit),
+    //       currentPage: page,
+    //     });
+    //   } catch (error) {
+    //     console.error("Error fetching products:", error);
+    //     res.status(500).send({ message: "Internal Server Error" });
+    //   }
+    // });
+    // app.get("/products", (req, res) => {
+    //   // current page
+    //   const page = req.query.p || 0;
+    //   const productsPerPage = 10;
+
+    //   let products = [];
+
+    //   db.collection("products")
+    //     .find()
+    //     .skip(page * productsPerPage)
+    //     .limit(productsPerPage)
+    //     .toArray()
+    //     .forEach((product) => products.push(product))
+    //     .then(() => {
+    //       res.status(200).json(products);
+    //     })
+    //     .catch(() => {
+    //       res.status(500).json({ error: "could not fetch products" });
+    //     });
+    // });
     app.get("/products", async (req, res) => {
-      const result = await productsCollection.find().toArray();
-      res.send(result);
+      try {
+        const page = parseInt(req.query.p) || 0;
+        const productsPerPage = 10;
+
+        const totalProducts = await db.collection("products").countDocuments(); // Get total product count
+        const products = await db
+          .collection("products")
+          .find()
+          .skip(page * productsPerPage)
+          .limit(productsPerPage)
+          .toArray();
+
+        res.status(200).json({
+          products,
+          totalPages: Math.ceil(totalProducts / productsPerPage), // Send total pages
+        });
+      } catch (error) {
+        res.status(500).json({ error: "could not fetch products" });
+      }
     });
 
     // Filter products by brand
