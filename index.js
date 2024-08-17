@@ -187,11 +187,7 @@ async function run() {
 
     //   try {
     //     const result = await productsCollection.find(filter).toArray();
-    //     res.send(result);
-    //   } catch (error) {
-    //     console.error("Error fetching products:", error);
-    //     res.status(500).send({ message: "Internal Server Error" });
-    //   }
+    //
     // });
 
     // Send a ping to confirm a successful connection
