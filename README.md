@@ -37,8 +37,10 @@ The **shopTech** backend is built using Node.js and Express.js. It provides APIs
 
         ```env
         DB_NAME=
+        DB_PASS=
 
-    DB_PASS=
+    ```
+
     ```
 
 4.  Start the server:
