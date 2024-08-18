@@ -85,110 +85,50 @@ async function run() {
 
     //*************************************************************************
 
-    // get all packages
+    // get all products
     // app.get("/products", async (req, res) => {
     //   const result = await productsCollection.find().toArray();
     //   res.send(result);
     // });
 
-    // Get paginated products
-    // app.get("/products", async (req, res) => {
-    //   try {
-    //     const page = parseInt(req.query.page) || 1;
-    //     const limit = parseInt(req.query.limit) || 10;
-    //     const skip = (page - 1) * limit;
-
-    //     // Fetch the filtered and paginated products
-    //     const products = await productsCollection
-    //       .find()
-    //       .skip(skip)
-    //       .limit(limit)
-    //       .toArray();
-
-    //     // Get the total count for pagination
-    //     const totalProducts = await productsCollection.countDocuments();
-
-    //     res.send({
-    //       products,
-    //       totalProducts,
-    //       totalPages: Math.ceil(totalProducts / limit),
-    //       currentPage: page,
-    //     });
-    //   } catch (error) {
-    //     console.error("Error fetching products:", error);
-    //     res.status(500).send({ message: "Internal Server Error" });
-    //   }
-    // });
-    // app.get("/products", (req, res) => {
-    //   // current page
-    //   const page = req.query.p || 0;
-    //   const productsPerPage = 10;
-
-    //   let products = [];
-
-    //   db.collection("products")
-    //     .find()
-    //     .skip(page * productsPerPage)
-    //     .limit(productsPerPage)
-    //     .toArray()
-    //     .forEach((product) => products.push(product))
-    //     .then(() => {
-    //       res.status(200).json(products);
-    //     })
-    //     .catch(() => {
-    //       res.status(500).json({ error: "could not fetch products" });
-    //     });
-    // });
     app.get("/products", async (req, res) => {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const startIndex = (page - 1) * limit;
+      const nextPage = page + 1;
+      const prevPage = page > 1 ? page - 1 : null;
+
+      console.log(
+        `Fetching products: page=${page}, limit=${limit}, startIndex=${startIndex}`
+      );
+
       try {
-        // Parse page number from query parameters, default to 0
-        const page = parseInt(req.query.p, 10) || 0;
-        const productsPerPage = 10;
-
-        if (page < 0) {
-          return res
-            .status(400)
-            .json({ error: "Page number cannot be negative" });
-        }
-
-        // Get total product count
-        const totalProducts = await db.collection("products").countDocuments();
-
-        // Fetch paginated products
-        const products = await db
-          .collection("products")
+        const products = await productsCollection
           .find()
-          .skip(page * productsPerPage)
-          .limit(productsPerPage)
+          .skip(startIndex)
+          .limit(limit)
           .toArray();
 
-        // Send response with products and total pages
-        res.status(200).json({
-          products,
-          totalPages: Math.ceil(totalProducts / productsPerPage), // Calculate total pages
-        });
+        const totalCount = await productsCollection.countDocuments(); // Get total count of products
+
+        console.log(`Products fetched: ${products.length} items`);
+        console.log(`Total count of products: ${totalCount}`);
+
+        const results = {
+          results: products,
+          totalCount: totalCount,
+          next:
+            products.length === limit ? { page: nextPage, limit: limit } : null,
+          previous: prevPage ? { page: prevPage, limit: limit } : null,
+        };
+
+        res.json(results);
       } catch (error) {
-        console.error("Error fetching products:", error); // Log the error for debugging
-        res.status(500).json({ error: "Could not fetch products" });
+        console.error("Error fetching products:", error);
+        res.status(500).send({ message: "Internal Server Error" });
       }
     });
-
-    // app.get("/filter-products", async (req, res) => {
-    //   const { categories = [], brands = [] } = req.query;
-    //   const filter = {};
-
-    //   if (categories.length > 0 && !categories.includes("All")) {
-    //     filter.category = { $in: categories.split(",") };
-    //   }
-
-    //   if (brands.length > 0 && !brands.includes("All")) {
-    //     filter.brand = { $in: brands.split(",") };
-    //   }
-
-    //   try {
-    //     const result = await productsCollection.find(filter).toArray();
-    //
-    // });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
