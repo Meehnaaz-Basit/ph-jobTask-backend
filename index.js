@@ -28,6 +28,7 @@ async function run() {
 
     // user collection
     const usersCollection = client.db("jobTask").collection("users");
+    // products collection
     const productsCollection = client.db("jobTask").collection("products");
 
     //*************************************************************************
